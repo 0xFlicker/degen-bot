@@ -1,0 +1,19 @@
+{
+  "name": "discord-deploy",
+  "packageManager": "yarn@3.2.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "cdk": " node --experimental-json-modules ./node_modules/.bin/cdk",
+    "deploy": "yarn build && node --experimental-json-modules ./node_modules/.bin/cdk deploy \"**\""
+  },
+  "dependencies": {
+    "@aws-solutions-constructs/aws-cloudfront-apigateway": "^2.5.0",
+    "@souls-of-akaso/contracts": "^0.0.5",
+    "aws-cdk": "^2.15.0",
+    "aws-cdk-lib": "^2.21.1",
+    "constructs": "^10.0.123",
+    "source-map-support": "^0.5.16",
+    "typescript": "^4.6.3"
+  }
+}

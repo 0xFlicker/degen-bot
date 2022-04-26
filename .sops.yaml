@@ -1,0 +1,5 @@
+creation_rules:
+  - path_regex: secrets/.*
+    key_groups:
+      - pgp:
+          - E284C1774B1434BE7B4FEF8B456D41C5A33EE7AF
