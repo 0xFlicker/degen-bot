@@ -19,11 +19,10 @@ export function register(handler: ICommandHandler): void {
 export async function handle(
   interaction: InferredApplicationCommandType
 ): Promise<APIGatewayProxyResult> {
-  logger.info("Received interaction", { interaction });
   for (const handler of handlers) {
     const result = await handler.handler(interaction);
     if (result) {
-      logger.debug("Handled interaction", { interaction });
+      logger.info("Handled interaction");
       return result;
     }
   }

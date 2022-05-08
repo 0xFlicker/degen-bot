@@ -10,6 +10,7 @@ new DiscordStack(app, "discord", {
   // Yes these are not really a "secret" but it's a string that I don't want to store in the repo
   domain: discordSecretsJson.domain,
   publicKey: discordSecretsJson["discord-public-key"],
+  leaderboardApi: discordSecretsJson["leaderboard-api"],
   env: {
     region: process.env.CDK_DEFAULT_REGION,
     account: process.env.CDK_DEFAULT_ACCOUNT,

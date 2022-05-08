@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { sign } from "tweetnacl";
+import { OpenAPI } from "../swagger-gen/index.js";
 import { createLogger } from "../utils/logging.js";
 import { InferredApplicationCommandType } from "../types.js";
 import { handle as pingHandler } from "../interactions/ping.js";
@@ -7,6 +8,10 @@ import { handle as commandHandler } from "../interactions/command.js";
 import { APIInteraction, InteractionType } from "discord-api-types/v10";
 import "../commands/ping.js";
 import "../commands/token.js";
+import "../commands/leaderboard.js";
+
+OpenAPI.BASE = process.env.LEADERBOARD_BASE || OpenAPI.BASE;
+
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -87,7 +92,7 @@ export const handler = async (
           }),
         };
     }
-  } catch (e) {
+  } catch (e: any) {
     logger.error(e);
     return {
       statusCode: 500,

@@ -7,16 +7,19 @@
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc -b",
     "discord:cli": "yarn discord:cli:build && node .layers/discord-cli/index.cjs",
-    "discord:cli:build": "esbuild src/cli.ts --platform=node --target=node --bundle --outfile=.layers/discord-cli/index.cjs",
+    "discord:cli:build": "esbuild src/cli.ts --platform=node --target=node16.14 --bundle --outfile=.layers/discord-cli/index.cjs",
     "discord:build": "esbuild src/lambda/discord.ts --platform=node --target=node16.14 --bundle --outfile=.layers/discord/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest test",
+    "open:gen": "openapi --input swagger.json --client axios --output ./src/swagger-gen"
   },
   "devDependencies": {
+    "@shelf/jest-dynamodb": "^2.2.4",
     "@types/aws-lambda": "^8.10.95",
     "@types/jest": "^27.4.1",
     "esbuild": "^0.14.38",
     "eslint": "^8.13.0",
     "jest": "^27.5.1",
+    "openapi-typescript-codegen": "^0.22.0",
     "prettier": "^2.6.2",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"
@@ -26,12 +29,16 @@
     "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.4.1",
     "@twitter-api-v2/plugin-token-refresher": "^1.0.0",
+    "@types/uuid": "^8.3.4",
     "aws-lambda": "^1.0.7",
+    "axios": "^0.27.2",
+    "axios-mock-adapter": "^1.20.0",
     "commander": "^9.2.0",
     "discord-api-types": "^0.32.0",
     "discord.js": "^13.6.0",
     "lambda-logger-node": "4.0.0-7",
     "tweetnacl": "^1.0.3",
-    "twitter-api-v2": "^1.12.0"
+    "twitter-api-v2": "^1.12.0",
+    "uuid": "^8.3.2"
   }
 }
