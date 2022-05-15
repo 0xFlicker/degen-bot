@@ -77,34 +77,6 @@ export class DiscordStack extends cdk.Stack {
       "node16Layer",
       `arn:aws:lambda:${props.env?.region}:072686360478:layer:node-16_4_2:3`
     );
-    const discordHandler = new lambda.Function(this, "discordLambda", {
-      runtime: lambda.Runtime.PROVIDED,
-      code: lambda.Code.fromAsset(
-        path.join(__dirname, "../../../.layers/discord")
-      ),
-      handler: "index.handler",
-      timeout: cdk.Duration.seconds(10),
-      memorySize: 128,
-      layers: [node16Layer],
-      environment: {
-        PUBLIC_KEY: publicKey,
-        STATIC_IMAGE_URL: `https://${staticAssetBucket.bucketName}.s3.amazonaws.com`,
-        MINIMUM_LOG_LEVEL: "DEBUG",
-        TABLE_NAME_MINECRAFT_PLAYER: minecraftPlayerTable.tableName,
-        TABLE_NAME_RANKER_BOARDS: rankBoardTable.tableName,
-        TABLE_NAME_RANKER_SCORES: rankScoresTable.tableName,
-        TABLE_NAME_RANKER_NODES: rankNodesTable.tableName,
-        TABLE_NAME_RANKER_LEADERBOARDS: rankLeaderboardsTable.tableName,
-        CURRENT_LEADERBOARD: "potato",
-        LEADERBOARD_BASE: leaderboardApi,
-      },
-    });
-
-    minecraftPlayerTable.grantReadWriteData(discordHandler);
-    rankBoardTable.grantReadWriteData(discordHandler);
-    rankScoresTable.grantReadWriteData(discordHandler);
-    rankNodesTable.grantReadWriteData(discordHandler);
-    rankLeaderboardsTable.grantReadWriteData(discordHandler);
 
     const scoreQueue = new sqs.Queue(this, "scoreQueue-2", {
       visibilityTimeout: cdk.Duration.seconds(300),
@@ -118,6 +90,82 @@ export class DiscordStack extends cdk.Stack {
       contentBasedDeduplication: true,
     });
     scoreTopic.addSubscription(new subs.SqsSubscription(scoreQueue));
+
+    const deferredMessageQueue = new sqs.Queue(this, "deferredMessageQueue", {
+      visibilityTimeout: cdk.Duration.seconds(300),
+      retentionPeriod: cdk.Duration.days(1),
+    });
+    const deferredMessageTopic = new sns.Topic(this, "deferredMessageTopic");
+    deferredMessageTopic.addSubscription(
+      new subs.SqsSubscription(deferredMessageQueue)
+    );
+
+    const discordHandler = new lambda.Function(this, "discordLambda", {
+      runtime: lambda.Runtime.PROVIDED,
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "../../../.layers/discord")
+      ),
+      handler: "index.handler",
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 256,
+      layers: [node16Layer],
+      environment: {
+        PUBLIC_KEY: publicKey,
+        STATIC_IMAGE_URL: `https://${staticAssetBucket.bucketName}.s3.amazonaws.com`,
+        MINIMUM_LOG_LEVEL: "INFO",
+        TABLE_NAME_MINECRAFT_PLAYER: minecraftPlayerTable.tableName,
+        TABLE_NAME_RANKER_BOARDS: rankBoardTable.tableName,
+        TABLE_NAME_RANKER_SCORES: rankScoresTable.tableName,
+        TABLE_NAME_RANKER_NODES: rankNodesTable.tableName,
+        TABLE_NAME_RANKER_LEADERBOARDS: rankLeaderboardsTable.tableName,
+        CURRENT_LEADERBOARD: "potato",
+        LEADERBOARD_BASE: leaderboardApi,
+        DISCORD_DEFERRED_MESSAGE_TOPIC_ARN: deferredMessageTopic.topicArn,
+      },
+    });
+
+    minecraftPlayerTable.grantReadWriteData(discordHandler);
+    rankBoardTable.grantReadWriteData(discordHandler);
+    rankScoresTable.grantReadWriteData(discordHandler);
+    rankNodesTable.grantReadWriteData(discordHandler);
+    rankLeaderboardsTable.grantReadWriteData(discordHandler);
+    deferredMessageTopic.grantPublish(discordHandler);
+
+    const deferredMessageHandler = new lambda.Function(
+      this,
+      "deferredMessageHandler",
+      {
+        runtime: lambda.Runtime.PROVIDED,
+        code: lambda.Code.fromAsset(
+          path.join(__dirname, "../../../.layers/deferred")
+        ),
+        handler: "index.handler",
+        timeout: cdk.Duration.seconds(30),
+        memorySize: 256,
+        layers: [node16Layer],
+        environment: {
+          STATIC_IMAGE_URL: `https://${staticAssetBucket.bucketName}.s3.amazonaws.com`,
+          MINIMUM_LOG_LEVEL: "DEBUG",
+          CURRENT_LEADERBOARD: "potato",
+          LEADERBOARD_BASE: leaderboardApi,
+          TABLE_NAME_MINECRAFT_PLAYER: minecraftPlayerTable.tableName,
+          TABLE_NAME_RANKER_BOARDS: rankBoardTable.tableName,
+          TABLE_NAME_RANKER_SCORES: rankScoresTable.tableName,
+          TABLE_NAME_RANKER_NODES: rankNodesTable.tableName,
+          TABLE_NAME_RANKER_LEADERBOARDS: rankLeaderboardsTable.tableName,
+        },
+        events: [
+          new eventSources.SqsEventSource(deferredMessageQueue, {
+            batchSize: 10,
+          }),
+        ],
+      }
+    );
+    minecraftPlayerTable.grantReadWriteData(deferredMessageHandler);
+    rankBoardTable.grantReadData(deferredMessageHandler);
+    rankScoresTable.grantReadData(deferredMessageHandler);
+    rankNodesTable.grantReadData(deferredMessageHandler);
+    rankLeaderboardsTable.grantReadData(deferredMessageHandler);
 
     const scoreHandler = new lambda.Function(this, "scoreHandler", {
       runtime: lambda.Runtime.PROVIDED,

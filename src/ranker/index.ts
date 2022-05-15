@@ -1,6 +1,6 @@
 import { createRanker } from "@0xflicker/ranker";
+import { Experiences } from "../commands/leaderboard/common";
 import { getDb } from "../storage/db/dynamo";
-import { Experiences } from "../swagger-gen";
 
 const rankerOptions = {
   [Experiences.POTATO]: {

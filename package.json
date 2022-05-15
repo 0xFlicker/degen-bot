@@ -8,8 +8,9 @@
     "build": "./node_modules/typescript/bin/tsc -b",
     "discord:cli": "yarn discord:cli:build && node .layers/discord-cli/index.cjs",
     "discord:cli:build": "esbuild src/cli.ts --platform=node --target=node16.14 --bundle --outfile=.layers/discord-cli/index.cjs",
-    "discord:build": "esbuild src/lambda/discord.ts --platform=node --target=node16.14 --bundle --outfile=.layers/discord/index.js",
-    "ingest:build": "esbuild src/lambda/ingest.ts --platform=node --target=node16.14 --bundle --outfile=.layers/ingest/index.js",
+    "discord:build": "esbuild src/lambda/discord.ts --platform=node --target=node16.14 --minify --bundle --outfile=.layers/discord/index.js",
+    "ingest:build": "esbuild src/lambda/ingest.ts --platform=node --target=node16.14 --minify --bundle --outfile=.layers/ingest/index.js",
+    "deferred:build": "esbuild src/lambda/deferred.ts --platform=node --target=node16.14 --minify --bundle --outfile=.layers/deferred/index.js",
     "test": "jest test",
     "open:gen": "openapi --input swagger.json --client axios --output ./src/swagger-gen"
   },
@@ -26,7 +27,7 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@0xflicker/ranker": "^1.0.6",
+    "@0xflicker/ranker": "^1.0.7",
     "@aws-sdk/client-dynamodb": "^3.85.0",
     "@aws-sdk/lib-dynamodb": "^3.85.0",
     "@discordjs/builders": "^0.13.0",

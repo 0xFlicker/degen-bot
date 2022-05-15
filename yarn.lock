@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@0xflicker/ranker@^1.0.6":
-  version "1.0.6"
-  resolved "https://npm.pkg.github.com/download/@0xflicker/ranker/1.0.6/a93e3674f536dd75b673705477bb72f46198ee6bb62df14924470d9e3889a164#5694780c3205338130dd2d09e5adb8a8c6453d60"
-  integrity sha512-llIyrUHL78j2kWmA1QdzT3aCDDH6RVd9e6JTcOwuWOKkSa9Wke0POChbAUBeKV9R73geLCee4Q/ORY7RvEeI+A==
+"@0xflicker/ranker@^1.0.7":
+  version "1.0.7"
+  resolved "https://npm.pkg.github.com/download/@0xflicker/ranker/1.0.7/4aefe8d70a25e239c609268efdbe8c64dc87cf3548b0c0d78a6a09439ed0892a#6f23552babb2c337758ade2f20848ad54d7c054e"
+  integrity sha512-R1S50huDpfu0ZsWMurvdgkLhlksVoXuJu+2Ztimg21J5zjdehA2vnW/PQkmp3sjCUmt1gjbXkNBrKwBl7xTUIQ==
   dependencies:
     "@aws-sdk/client-dynamodb" "^3.85.0"
     "@aws-sdk/lib-dynamodb" "^3.85.0"

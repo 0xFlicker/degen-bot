@@ -1,7 +1,7 @@
 import { ScoreInput, config } from "@0xflicker/ranker";
 import { SQSHandler } from "aws-lambda";
+import { Experiences } from "../commands/leaderboard/common";
 import { createRankerInstance } from "../ranker";
-import { Experiences } from "../swagger-gen";
 import { createLogger } from "../utils/logging";
 
 const KNOWN_LEADERBOARDS = [Experiences.POTATO];
