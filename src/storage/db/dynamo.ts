@@ -1,19 +1,22 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
-let instance: DocumentClient;
+let instance: DynamoDBDocumentClient;
 
 export function create() {
-  const isTest = process.env.JEST_WORKER_ID;
+  const isTest = process.env.NODE_ENV === "test";
   const config = {
-    convertEmptyValues: true,
     ...(isTest && {
-      endpoint: "localhost:8000",
-      sslEnabled: false,
+      endpoint: "http://localhost:8000",
       region: "local-env",
     }),
   };
-
-  return new DocumentClient(config);
+  const ddb = new DynamoDBClient(config);
+  return DynamoDBDocumentClient.from(ddb, {
+    marshallOptions: {
+      convertEmptyValues: true,
+    },
+  });
 }
 
 export function getDb() {

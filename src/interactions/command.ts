@@ -1,12 +1,11 @@
 import { APIGatewayProxyResult } from "aws-lambda";
-import { LambdaResponse } from "../utils/response.js";
 import { InferredApplicationCommandType } from "../types.js";
 import { createLogger } from "../utils/logging.js";
 
 interface ICommandHandler {
   handler(
     event: InferredApplicationCommandType
-  ): LambdaResponse | Promise<false> | false;
+  ): Promise<false | APIGatewayProxyResult>;
 }
 
 const handlers: ICommandHandler[] = [];

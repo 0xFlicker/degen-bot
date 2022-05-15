@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  flick-bot
+
+  Sample SAM Template for flick-bot
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 256
+    Timeout: 100
+Resources:
+  # RuntimeDependenciesLayer:
+  #   Type: AWS::Serverless::LayerVersion
+  #   Metadata:
+  #     BuildMethod: makefile
+  #   Properties:
+  #     Description: Dependencies
+  #     ContentUri: ./
+  #     RetentionPolicy: Retain
+  DiscordFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Environment:
+        Variables:
+          PUBLIC_KEY: '{{resolve:secretsmanager:degen-bot-secrets:SecretString:discord-public-key}}'
+      CodeUri: ./
+      Handler: lib/lambda/discord.lambdaHandler
+      Runtime: provided
+      Layers: 
+      - arn:aws:lambda:us-west-2:072686360478:layer:node-16_4_2:3
+      # - !Ref RuntimeDependenciesLayer
+      Events:
+        Discord:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /discord
+            Method: post
+
+Outputs: 
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  DiscordApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/discord/"
+  DiscordFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt DiscordFunction.Arn
+  DiscordFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt DiscordFunctionRole.Arn

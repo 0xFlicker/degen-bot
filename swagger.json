@@ -1,0 +1,484 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "version": "0.0.1",
+    "title": "Swagger Leaderboard"
+  },
+  "servers": [
+    {
+      "url": "/Prod"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "PlayerRequest": {
+        "type": "object",
+        "properties": {
+          "playerId": {
+            "type": "string"
+          }
+        }
+      },
+      "Experiences": {
+        "type": "string",
+        "enum": [
+          "potato"
+        ]
+      },
+      "TimeFrame": {
+        "type": "string",
+        "enum": [
+          "alltime",
+          "weekly",
+          "daily"
+        ]
+      },
+      "Player": {
+        "type": "object",
+        "properties": {
+          "Player_ID": {
+            "type": "string"
+          },
+          "Score": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "LeaderboardResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "Player_ID": {
+                  "type": "string"
+                },
+                "Score": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "size": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "RankingResponse": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "rankings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rank": {
+                  "type": "number"
+                },
+                "period": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ScoreResponse": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/leaderboard/{experience}/{timeframe}": {
+      "get": {
+        "tags": [
+          "Leaderboard"
+        ],
+        "description": "Get a specific leaderboard",
+        "operationId": "getLeaderboard",
+        "parameters": [
+          {
+            "name": "experience",
+            "in": "path",
+            "description": "The experience to get scores from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "potato"
+              ]
+            }
+          },
+          {
+            "name": "timeframe",
+            "in": "path",
+            "description": "The period length of time for the leaderboard",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "alltime",
+                "weekly",
+                "daily"
+              ]
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "The number of records to include",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "Start leaderboard from this record",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "Player_ID": {
+                            "type": "string"
+                          },
+                          "Score": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "size": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ranks/{experience}": {
+      "post": {
+        "tags": [
+          "rankings"
+        ],
+        "description": "Get bulk score and ranking",
+        "operationId": "getBulkRankings",
+        "parameters": [
+          {
+            "name": "experience",
+            "in": "path",
+            "description": "The experience to get scores from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "potato"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "playerId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "score": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "rankings": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "rank": {
+                              "type": "number"
+                            },
+                            "period": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rank/{experience}": {
+      "post": {
+        "tags": [
+          "rankings"
+        ],
+        "description": "Get a specific score and ranking",
+        "operationId": "getRankings",
+        "parameters": [
+          {
+            "name": "experience",
+            "in": "path",
+            "description": "The experience to get scores from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "potato"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "playerId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "score": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "rankings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rank": {
+                            "type": "number"
+                          },
+                          "period": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scores/{experience}": {
+      "post": {
+        "tags": [
+          "score"
+        ],
+        "description": "Get a set of scores",
+        "operationId": "getBulkScore",
+        "parameters": [
+          {
+            "name": "experience",
+            "in": "path",
+            "description": "The experience to get scores from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "potato"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "playerId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "score": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/score/{experience}": {
+      "post": {
+        "tags": [
+          "score"
+        ],
+        "description": "Get a specific score",
+        "operationId": "getScore",
+        "parameters": [
+          {
+            "name": "experience",
+            "in": "path",
+            "description": "The experience to get scores from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "potato"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "playerId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "score": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,3 +1,9 @@
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { NotFoundError } from "../../error/NotFound";
 
@@ -18,7 +24,7 @@ export class MinecraftPlayerDAO {
   public static readonly TABLE_NAME =
     process.env.TABLE_NAME_MINECRAFT_PLAYER || "MinecraftPlayer";
   private minecraftPlayer: MinecraftPlayer;
-  private db: DocumentClient;
+  private db: DynamoDBDocumentClient;
 
   public get uuid(): string {
     return this.minecraftPlayer.uuid;
@@ -33,37 +39,37 @@ export class MinecraftPlayerDAO {
     return this.minecraftPlayer.avatar;
   }
 
-  constructor(db: DocumentClient, userToken: IMinecraftPlayer) {
+  constructor(db: DynamoDBDocumentClient, userToken: IMinecraftPlayer) {
     this.minecraftPlayer = MinecraftPlayer.fromJson(userToken);
     this.db = db;
   }
 
   public static async create(
-    db: DocumentClient,
+    db: DynamoDBDocumentClient,
     playerModel: IMinecraftPlayer
   ): Promise<MinecraftPlayerDAO> {
-    await db
-      .put({
+    await db.send(
+      new PutCommand({
         TableName: MinecraftPlayerDAO.TABLE_NAME,
         Item: {
           ttl: new Date().getTime() + MinecraftPlayerDAO.TTL_ONE_WEEK,
           ...playerModel,
         },
       })
-      .promise();
+    );
     return new MinecraftPlayerDAO(db, playerModel);
   }
 
   public static async findByUuid(
-    db: DocumentClient,
+    db: DynamoDBDocumentClient,
     uuid: string
   ): Promise<MinecraftPlayerDAO> {
-    const userToken = await db
-      .get({
+    const userToken = await db.send(
+      new GetCommand({
         TableName: MinecraftPlayerDAO.TABLE_NAME,
         Key: { uuid },
       })
-      .promise();
+    );
     if (!userToken.Item) {
       throw new NotFoundError("MinecraftPlayer not found");
     }
@@ -77,8 +83,8 @@ export class MinecraftPlayerDAO {
     playerNameModel: Partial<IMinecraftPlayer>
   ): Promise<void> {
     this.minecraftPlayer = this.minecraftPlayer.fromPartial(playerNameModel);
-    await this.db
-      .update({
+    await this.db.send(
+      new UpdateCommand({
         TableName: MinecraftPlayerDAO.TABLE_NAME,
         Key: { uuid: this.uuid },
         UpdateExpression: "set #name = :name, #avatar = :avatar",
@@ -93,7 +99,7 @@ export class MinecraftPlayerDAO {
           ":ttl": new Date().getTime() + MinecraftPlayerDAO.TTL_ONE_WEEK,
         },
       })
-      .promise();
+    );
   }
 }
 

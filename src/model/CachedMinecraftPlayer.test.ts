@@ -1,4 +1,4 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import axios from "axios";
 import MockAxios from "axios-mock-adapter";
 import { v4 as makeUuid } from "uuid";
@@ -18,7 +18,7 @@ interface IResponseType {
   player: IMinecraftPlayer;
 }
 describe("CachedMinecraftPlayer", () => {
-  let db: DocumentClient;
+  let db: DynamoDBDocumentClient;
 
   beforeEach(() => {
     db = create();
@@ -36,7 +36,7 @@ describe("CachedMinecraftPlayer", () => {
       .onGet(`https://playerdb.co/api/player/minecraft/${uuid}`)
       .replyOnce(200, {
         code: "player.found",
-        data: player,
+        data: { player },
       });
     const responsePlayer = await playerByUuid(uuid);
     expect(responsePlayer.name).toBe("test-name");
@@ -65,7 +65,7 @@ describe("CachedMinecraftPlayer", () => {
       .onGet(`https://playerdb.co/api/player/xbox/${numericUuid}`)
       .replyOnce(200, {
         code: "player.found",
-        data: player,
+        data: { player },
       });
     const responsePlayer = await playerByUuid(uuid);
     expect(responsePlayer.name).toBe("test-name");

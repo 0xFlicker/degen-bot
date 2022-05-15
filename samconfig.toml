@@ -1,0 +1,18 @@
+version=0.1
+[default.global.parameters]
+stack_name = "degen-bot"
+
+[default.build.parameters]
+beta_features = true
+          
+[default.sync.parameters]
+beta_features = true
+
+[default.deploy]
+[default.deploy.parameters]
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1vbvsm4vrjhoa"
+s3_prefix = "degen-bot"
+region = "us-west-2"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+
