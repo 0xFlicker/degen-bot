@@ -29,6 +29,7 @@
   "dependencies": {
     "@0xflicker/ranker": "^1.0.7",
     "@aws-sdk/client-dynamodb": "^3.85.0",
+    "@aws-sdk/client-sns": "^3.87.0",
     "@aws-sdk/lib-dynamodb": "^3.85.0",
     "@discordjs/builders": "^0.13.0",
     "@discordjs/rest": "^0.4.1",

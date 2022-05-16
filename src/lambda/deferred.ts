@@ -2,10 +2,11 @@ import { SQSHandler } from "aws-lambda";
 import { parseMessage } from "../update-interaction";
 import { createLogger } from "../utils/logging";
 import { handle as commandHandler } from "../update-interaction/commands";
-import type { InteractionType } from "discord-api-types/v10";
+import { InteractionType } from "discord-api-types/v10";
 import { InferredApplicationCommandType } from "../types";
 import { sendInteraction } from "../service/discord";
 
+import "../commands/ping/deferred.js";
 import "../commands/leaderboard/deferred.js";
 
 const logger = createLogger();
@@ -21,13 +22,14 @@ export const handler: SQSHandler = async (event) => {
       const { interaction } = deferredInteraction;
       if (interaction.type == InteractionType.ApplicationCommand) {
         const message = await commandHandler(interaction);
-        const { id, token } = interaction;
+        const { token } = interaction;
         logger.debug("Sending interaction", message);
-        await sendInteraction(id, token, message);
+        await sendInteraction(token, message);
         return;
       }
       logger.warn("Unknown interaction type", interaction);
-    } catch (err) {
+    } catch (err: any) {
+      logger.error(err.stack);
       logger.error(`Failed to process message`, err);
     }
   }

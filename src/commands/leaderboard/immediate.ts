@@ -1,7 +1,9 @@
 import { register } from "../../interactions/command";
-import { Experiences } from "../../swagger-gen";
-import { createDeferredInteraction, deferredMessage } from "../../update-interaction";
-import { logger, KNOWN_LEADERBOARDS } from "./common";
+import {
+  createDeferredInteraction,
+  deferredMessage,
+} from "../../update-interaction";
+import { logger, KNOWN_LEADERBOARDS, Experiences } from "./common";
 
 register({
   handler: async (interaction) => {

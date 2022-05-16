@@ -1,8 +1,8 @@
 import type {
   APIInteraction,
   APIInteractionResponseDeferredChannelMessageWithSource,
-  InteractionResponseType,
 } from "discord-api-types/v10";
+import { InteractionResponseType } from "discord-api-types/v10";
 import { createSNS } from "../pubsub/sns";
 import {
   createDeferredInteractionMessage,
@@ -25,21 +25,19 @@ export async function createDeferredInteraction(
   context?: string
 ) {
   const sns = createSNS();
-  const { MessageId } = await sns
-    .publish({
-      Message: JSON.stringify(
-        createDeferredInteractionMessage(interaction, context)
-      ),
-      TopicArn: getTopicArn(),
-    })
-    .promise();
+  const { MessageId } = await sns.publish({
+    Message: JSON.stringify(
+      createDeferredInteractionMessage(interaction, context)
+    ),
+    TopicArn: getTopicArn(),
+  });
   return MessageId;
 }
 
 export function parseMessage<Type extends APIInteraction>(message: string) {
   const payload = JSON.parse(message);
   if (payload.type === "defer") {
-    return JSON.parse(payload) as IDeferredInteraction<"defer", Type>;
+    return payload as IDeferredInteraction<"defer", Type>;
   }
   throw new Error(`Unknown message ${message}`);
 }

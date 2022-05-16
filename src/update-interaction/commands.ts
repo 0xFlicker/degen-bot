@@ -2,7 +2,6 @@ import type {
   APIEmbed,
   APIInteractionResponseCallbackData,
 } from "discord-api-types/v10";
-import { MessageEmbed } from "discord.js";
 import { InferredApplicationCommandType } from "../types.js";
 import { createLogger } from "../utils/logging.js";
 
@@ -14,13 +13,6 @@ interface ICommandHandler {
 
 const handlers: ICommandHandler[] = [];
 const logger = createLogger();
-
-export function asApiMessageEmbed(embed: MessageEmbed): APIEmbed {
-  if (embed instanceof MessageEmbed) {
-    return embed as any as APIEmbed;
-  }
-  throw new Error("Not a MessageEmbed");
-}
 
 export function register(handler: ICommandHandler): void {
   handlers.push(handler);

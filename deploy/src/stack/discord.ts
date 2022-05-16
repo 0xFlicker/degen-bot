@@ -16,7 +16,8 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 
 export interface DiscordProps extends cdk.StackProps {
   readonly domain: [string, string] | string;
-  leaderboardApi: string;
+  readonly leaderboardApi: string;
+  readonly discordAppId: string;
   readonly publicKey: string;
 }
 
@@ -24,7 +25,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class DiscordStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: DiscordProps) {
-    const { domain, publicKey, leaderboardApi, ...rest } = props;
+    const { domain, publicKey, discordAppId, leaderboardApi, ...rest } = props;
     super(scope, id, rest);
 
     // DynamoDB tables
@@ -144,8 +145,9 @@ export class DiscordStack extends cdk.Stack {
         memorySize: 256,
         layers: [node16Layer],
         environment: {
+          DISCORD_APPLICATION_ID: discordAppId,
           STATIC_IMAGE_URL: `https://${staticAssetBucket.bucketName}.s3.amazonaws.com`,
-          MINIMUM_LOG_LEVEL: "DEBUG",
+          MINIMUM_LOG_LEVEL: "INFO",
           CURRENT_LEADERBOARD: "potato",
           LEADERBOARD_BASE: leaderboardApi,
           TABLE_NAME_MINECRAFT_PLAYER: minecraftPlayerTable.tableName,

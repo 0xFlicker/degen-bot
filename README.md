@@ -116,7 +116,17 @@ If successful then we are ready to test our bot.
 
 ## Testing
 
-There are no tests in this repo. We just do it live.
+There are ~~no tests~~ in this repo. We just do it live.
+
+### Unit tests
+
+Some unit tests have appeared...
+
+Run them with:
+
+```
+yarn test
+```
 
 ### Add the Interaction URL
 
@@ -161,6 +171,10 @@ and
 ```
 
 The bot should respond with an embed card and an image.
+
+## Delayed responses
+
+Discord requires that interaction URL callbacks respond within 3 seconds. This can be a problem for lambdas because of the cold start problem. In order to be able to take the time needed to respond to
 
 ## Invite link
 

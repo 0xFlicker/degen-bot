@@ -12,7 +12,7 @@ const logger = createLogger();
 logger.setKey("command", "token");
 
 register({
-  handler: (interaction) => {
+  handler: async (interaction) => {
     if (interaction.data.name !== "token") {
       return false;
     }

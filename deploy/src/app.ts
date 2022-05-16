@@ -9,6 +9,7 @@ const app = new cdk.App();
 new DiscordStack(app, "discord", {
   // Yes these are not really a "secret" but it's a string that I don't want to store in the repo
   domain: discordSecretsJson.domain,
+  discordAppId: discordSecretsJson["discord-app-id"],
   publicKey: discordSecretsJson["discord-public-key"],
   leaderboardApi: discordSecretsJson["leaderboard-api"],
   env: {

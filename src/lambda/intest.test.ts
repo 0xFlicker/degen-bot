@@ -1,14 +1,15 @@
 import { ScoreInput } from "@0xflicker/ranker";
 import { v4 as createUuid } from "uuid";
-import { Experiences } from "../swagger-gen";
 import { handler } from "./ingest";
 import { SQSEvent, SNSEventRecord, Context } from "aws-lambda";
 import { createRankerInstance } from "../ranker";
+import { Experiences } from "../commands/leaderboard/common";
 
 function scoringEvent(
   records: {
     boardName: Experiences;
-    scores: ScoreInput[];
+    scores?: ScoreInput[];
+    scoreDeltas?: ScoreInput[];
   }[]
 ): SQSEvent {
   return {
@@ -80,7 +81,7 @@ function fakeContext(): Context {
 }
 
 describe("ingest", () => {
-  it("sanity", async () => {
+  it("set scores", async () => {
     const records = [
       {
         boardName: Experiences.POTATO,
@@ -102,6 +103,92 @@ describe("ingest", () => {
         expect.objectContaining({
           Player_ID: "1",
           Score: [1],
+          Board_Name: "potato",
+        }),
+      ])
+    );
+  });
+
+  it("set score deltas", async () => {
+    const records = [
+      {
+        boardName: Experiences.POTATO,
+        scores: [
+          {
+            playerId: "1",
+            score: [1],
+          },
+          {
+            playerId: "2",
+            score: [2],
+          },
+          {
+            playerId: "3",
+            score: [3],
+          },
+        ],
+      },
+    ];
+    const event = scoringEvent(records);
+    const result = await handler(event, fakeContext(), () => {});
+    expect(result).toBeUndefined();
+    const ranker = await createRankerInstance(Experiences.POTATO);
+    let leaderboard = await ranker.leaderboard();
+    expect(leaderboard).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          Player_ID: "1",
+          Score: [1],
+          Board_Name: "potato",
+        }),
+        expect.objectContaining({
+          Player_ID: "2",
+          Score: [2],
+          Board_Name: "potato",
+        }),
+        expect.objectContaining({
+          Player_ID: "3",
+          Score: [3],
+          Board_Name: "potato",
+        }),
+      ])
+    );
+
+    await handler(
+      scoringEvent([
+        {
+          boardName: Experiences.POTATO,
+          scoreDeltas: [
+            {
+              playerId: "1",
+              score: [1],
+            },
+            {
+              playerId: "2",
+              score: [-1],
+            },
+          ],
+        },
+      ]),
+      fakeContext(),
+      () => {}
+    );
+    leaderboard = await ranker.leaderboard();
+    expect(leaderboard).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          Player_ID: "1",
+          Score: [2],
+          Board_Name: "potato",
+        }),
+        expect.objectContaining({
+          Player_ID: "2",
+          Score: [1],
+          Board_Name: "potato",
+        }),
+        expect.objectContaining({
+          Player_ID: "3",
+          Score: [3],
           Board_Name: "potato",
         }),
       ])

@@ -3,8 +3,8 @@ import type {
   APIPingInteraction,
   APIApplicationCommandInteraction,
   ApplicationCommandType,
-  InteractionType,
-} from "discord-api-types/payloads/v10/interactions";
+} from "discord-api-types/v10";
+import { InteractionType } from "discord-api-types/v10";
 
 export function isPingInteraction(
   interaction: APIInteraction

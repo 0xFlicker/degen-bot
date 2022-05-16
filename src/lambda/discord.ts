@@ -4,8 +4,9 @@ import { createLogger } from "../utils/logging.js";
 import { InferredApplicationCommandType } from "../types.js";
 import { handle as pingHandler } from "../interactions/ping.js";
 import { handle as commandHandler } from "../interactions/command.js";
-import type { APIInteraction, InteractionType } from "discord-api-types/v10";
-import "../commands/ping.js";
+import type { APIInteraction } from "discord-api-types/v10";
+import { InteractionType } from "discord-api-types/v10";
+import "../commands/ping/immediate.js";
 import "../commands/token.js";
 import "../commands/leaderboard/immediate.js";
 
