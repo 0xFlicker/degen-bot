@@ -174,7 +174,16 @@ The bot should respond with an embed card and an image.
 
 ## Delayed responses
 
-Discord requires that interaction URL callbacks respond within 3 seconds. This can be a problem for lambdas because of the cold start problem. In order to be able to take the time needed to respond to
+Discord requires that interaction URL callbacks respond within 3 seconds. This can be a problem for lambdas because of the cold start problem. In order to be able to take the time needed to respond to queries we separate the acknowledgement of interactions from the response.
+
+Here are some pictures to illustrate what that process looks like
+
+![Deferred Message Processing Overview](./images/deferred-message-processing.png)
+
+![Deferred Message Processing Sequence](./images/deferred-msg-sequence.png)
+
+Result:
+![example](./images/deferred_interaction.gif)
 
 ## Invite link
 

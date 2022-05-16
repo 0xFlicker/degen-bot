@@ -1,0 +1,29 @@
+@startuml deferred-message-processing
+!include <awslib/AWSCommon>
+!include <awslib/Compute/Lambda>
+!include <awslib/Database/DynamoDB>
+!include <awslib/Storage/SimpleStorageServiceS3>
+!include <awslib/ApplicationIntegration/SQS>
+!include <awslib/ApplicationIntegration/SNS>
+!include <material/common>
+!include <material/discord>
+
+skinparam componentStyle rectangle
+
+title Deferred Message Processing
+
+Lambda(discord_lambda, "Interaction callback", "Responds to Discord interaction events")
+Lambda(deferred_lambda, "Deferred messaging", "Updates existing messages with new content")
+SQS(deferred_queue, "Deferred message queue", "Queue for deferred messages")
+SNS(deferred_topic, "Deferred message topic", "Topic to publish deferred messages to")
+MA_DISCORD(Blue, 1.5, discord_interaction, rectangle, "[Discord interaction outgoing]")
+MA_DISCORD(Blue, 1.5, discord_api, rectangle, "[Discord webhook message update]")
+
+discord_interaction -d-> discord_lambda: On interaction event
+discord_lambda -u-> discord_interaction: Ack msg
+discord_lambda -> deferred_topic: Defer msg
+deferred_topic -> deferred_queue: queue msg
+deferred_queue -> deferred_lambda: Process msg
+deferred_lambda -u-> discord_api: Update msg
+
+@enduml
