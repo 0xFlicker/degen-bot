@@ -10,6 +10,24 @@
       "request": "attach",
       "skipFiles": ["<node_internals>/**"],
       "type": "node"
+    },
+    {
+      "name": "Debug Jest Tests",
+      "type": "node",
+      "request": "launch",
+      "env": {
+        // "DEBUG": "trace:*"
+      },
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/rank/node_modules/.bin/jest",
+        "--runInBand"
+        // "--testPathPattern=src/ranker/ranker.test.ts"
+      ],
+      "cwd": "${workspaceFolder}/rank",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "port": 9229
     }
   ]
 }

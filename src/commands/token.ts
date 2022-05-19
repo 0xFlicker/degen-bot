@@ -1,5 +1,4 @@
-import { InteractionResponseType } from "discord-api-types/v10";
-import { MessageEmbed } from "discord.js";
+import { APIEmbed, InteractionResponseType } from "discord-api-types/v10";
 import { register } from "../interactions/command.js";
 import { createLogger } from "../utils/logging";
 
@@ -27,16 +26,25 @@ register({
     }
     const token: number = tokenOption.value;
 
-    const message = new MessageEmbed()
-      .setImage(`${staticImageUrl}/oddy.png`)
-      .setTitle("Show me")
-      .addField("Token", token.toString());
     return {
       statusCode: 200,
       body: JSON.stringify({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          embeds: [message],
+          embeds: [
+            {
+              image: {
+                url: `${staticImageUrl}/oddy.png`,
+              },
+              title: "Show me",
+              fields: [
+                {
+                  name: "Token",
+                  value: token.toString(),
+                },
+              ],
+            },
+          ] as APIEmbed[],
         },
       }),
     };

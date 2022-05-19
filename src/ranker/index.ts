@@ -1,19 +1,39 @@
-import { createRanker } from "@0xflicker/ranker";
-import { Experiences } from "../commands/leaderboard/common";
+import Ranker, * as ranker from "@0xflicker/ranker";
 import { getDb } from "../storage/db/dynamo";
 
-const rankerOptions = {
-  [Experiences.POTATO]: {
-    rootKey: Experiences.POTATO,
-    branchingFactor: 100,
-    leaderboardSize: 100,
-    scoreRange: [0, 100000],
-  },
-};
+// const rankerOptions = {
+//   [Experiences.POTATO]: {
+//     rootKey: Experiences.POTATO,
+//     branchingFactor: 100,
+//     leaderboardSize: 100,
+//     scoreRange: [0, 100000],
+//   },
+// };
 
-export async function createRankerInstance(name: Experiences) {
-  return await createRanker({
+export async function initRanker(name: string) {
+  return await Ranker({
     db: getDb(),
-    ...rankerOptions[name],
+    rootKey: name,
   });
+}
+
+export type ICreateRanker = Omit<ranker.ICreateRanker, "db">;
+
+export async function createRanker(options: ICreateRanker) {
+  return await ranker.createRanker({
+    db: getDb(),
+    ...options,
+  });
+}
+
+export async function fetchBoard(name: string) {
+  return await ranker.fetchBoard(getDb(), name);
+}
+
+export async function fetchBoardNames() {
+  return await ranker.fetchBoardNames(getDb());
+}
+
+export async function isKnownLeaderboard(name: string) {
+  return (await fetchBoardNames()).includes(name);
 }

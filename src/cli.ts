@@ -59,6 +59,67 @@ commandCommand
                   )
               ),
           ],
+          [
+            "mclb-current",
+            new SlashCommandBuilder()
+              .setName("mclb-current")
+              .setDescription("Set or get the current leaderboard")
+              .addStringOption((option) =>
+                option
+                  .setName("set")
+                  .setDescription("Set the current leaderboard")
+              ),
+          ],
+          [
+            "mclb-add",
+            new SlashCommandBuilder()
+              .setName("mclb-add")
+              .setDescription("Add Minecraft leaderboard")
+              .addStringOption((option) =>
+                option
+                  .setName("name")
+                  .setDescription("The leaderboard key name, must be unique")
+                  .setRequired(true)
+              )
+              .addStringOption((option) =>
+                option
+                  .setName("score-range")
+                  .setDescription("The score range, e.g. 0,100")
+                  .setRequired(true)
+              )
+              .addIntegerOption((option) =>
+                option
+                  .setName("branching-factor")
+                  .setDescription("The branching factor")
+                  .setRequired(true)
+              )
+              .addIntegerOption((option) =>
+                option
+                  .setName("leaderboard-size")
+                  .setDescription("The leaderboard size retained")
+                  .setRequired(false)
+              )
+              .addIntegerOption((option) =>
+                option
+                  .setName("period")
+                  .setDescription("The time period to retain scores, in ms")
+                  .setRequired(false)
+              )
+              .addStringOption((option) =>
+                option
+                  .setName("display-name")
+                  .setDescription("The name to display")
+                  .setRequired(false)
+              )
+              .addStringOption((option) =>
+                option
+                  .setName("description")
+                  .setDescription(
+                    "The long form description for the leaderboard"
+                  )
+                  .setRequired(false)
+              ),
+          ],
         ] as [string, SlashCommandBuilder][]
       )
         .filter(([name, _]) => !exclude.includes(name))

@@ -2,7 +2,7 @@ import { ScoreInput } from "@0xflicker/ranker";
 import { v4 as createUuid } from "uuid";
 import { handler } from "./ingest";
 import { SQSEvent, SNSEventRecord, Context } from "aws-lambda";
-import { createRankerInstance } from "../ranker";
+import { initRanker } from "../ranker";
 import { Experiences } from "../commands/leaderboard/common";
 
 function scoringEvent(
@@ -96,7 +96,7 @@ describe("ingest", () => {
     const event = scoringEvent(records);
     const result = await handler(event, fakeContext(), () => {});
     expect(result).toBeUndefined();
-    const ranker = await createRankerInstance(Experiences.POTATO);
+    const ranker = await initRanker(Experiences.POTATO);
     const leaderboard = await ranker.leaderboard();
     expect(leaderboard).toEqual(
       expect.arrayContaining([
@@ -132,7 +132,7 @@ describe("ingest", () => {
     const event = scoringEvent(records);
     const result = await handler(event, fakeContext(), () => {});
     expect(result).toBeUndefined();
-    const ranker = await createRankerInstance(Experiences.POTATO);
+    const ranker = await initRanker(Experiences.POTATO);
     let leaderboard = await ranker.leaderboard();
     expect(leaderboard).toEqual(
       expect.arrayContaining([

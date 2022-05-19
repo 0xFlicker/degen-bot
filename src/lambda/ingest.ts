@@ -1,8 +1,7 @@
 import { ScoreInput, config } from "@0xflicker/ranker";
 import { TableScores } from "@0xflicker/ranker/lib/db/dynamodb";
 import { SQSHandler } from "aws-lambda";
-import { Experiences } from "../commands/leaderboard/common";
-import { createRankerInstance } from "../ranker";
+import { initRanker } from "../ranker";
 import { createLogger } from "../utils/logging";
 
 const KNOWN_LEADERBOARDS = [Experiences.POTATO];
@@ -17,7 +16,7 @@ export const handler: SQSHandler = async (event) => {
       scores,
       scoreDeltas,
     }: {
-      boardName: Experiences;
+      boardName: string;
       scores?: ScoreInput[];
       scoreDeltas?: ScoreInput[];
     } = JSON.parse(message);
@@ -26,58 +25,56 @@ export const handler: SQSHandler = async (event) => {
       continue;
     }
     try {
-      const l = await createRankerInstance(boardName);
+      const l = await initRanker(boardName);
       if (scores) {
         logger.debug("Adding scores", { scores });
         const [scoresToAdd, scoresToRemove] = await l.setScores(scores);
         await l.leaderboardUpdate(scoresToAdd, scoresToRemove);
       }
       if (scoreDeltas) {
-        logger.debug(
-          `Adding score deltas ${scoreDeltas
-            .map(({ playerId, score }) => `${playerId}: [${score.join(", ")}]`)
-            .join(" | ")}`
+        const oldScores = await Promise.all(
+          scoreDeltas.map(({ playerId }) => l.fetchScore(playerId))
         );
-        const oldScores = (
-          await Promise.all(
-            scoreDeltas.map(({ playerId }) => l.fetchScore(playerId))
-          )
-        ).filter((s) => s !== null) as TableScores[];
-        logger.debug(
-          `Oldscores ${oldScores
-            .map(
-              ({ Player_ID: playerId, Score: score }) =>
-                `${playerId}: [${score.join(", ")}]`
-            )
-            .join(" | ")}`
-        );
-        const oldScoreMap = new Map<string, TableScores>();
+        const oldScoreMap = new Map<string, ScoreInput>();
+        const scoresToSet = new Set<ScoreInput>();
         for (const score of oldScores) {
-          oldScoreMap.set(score.Player_ID, score);
-        }
-        for (const score of scoreDeltas) {
-          const oldScore = oldScoreMap.get(score.playerId);
-          if (oldScore) {
-            oldScore.Score.forEach((s, i) => {
-              logger.debug(
-                `Updating score ${i}: score=${s} delta=${score.score[i]}`
-              );
-              oldScore.Score[i] += score.score[i];
+          if (score) {
+            oldScoreMap.set(score.Player_ID, {
+              playerId: score.Player_ID,
+              score: score.Score,
+              date: score.Date,
             });
           }
         }
+        for (const { playerId, score, date } of scoreDeltas) {
+          if (oldScoreMap.has(playerId)) {
+            const oldScore = oldScoreMap.get(playerId)!;
+            if (oldScore) {
+              oldScore.score.forEach((s, i) => {
+                logger.debug(
+                  `Updating score ${i}: score=${s} delta=${score[i]}`
+                );
+                oldScore.score[i] += score[i];
+              });
+              scoresToSet.add(oldScore);
+            }
+          } else {
+            scoresToSet.add({
+              playerId,
+              score,
+              date,
+            });
+          }
+        }
+
         logger.info(`Applying score delta`);
-        const [scoresToAdd, scoresToRemove] = await l.setScores(
-          [...oldScoreMap.values()].map((s) => ({
-            playerId: s.Player_ID,
-            score: s.Score,
-            date: s.Date,
-          }))
-        );
+        const [scoresToAdd, scoresToRemove] = await l.setScores([
+          ...scoresToSet,
+        ]);
         await l.leaderboardUpdate(scoresToAdd, scoresToRemove);
       }
     } catch (err: any) {
-      logger.error(err);
+      console.error(err);
     }
   }
 };

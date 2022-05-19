@@ -1,14 +1,16 @@
 import type { APIEmbed } from "discord-api-types/v10";
 import { playerByUuid } from "../../model/CachedMinecraftPlayer.js";
-import { createRankerInstance } from "../../ranker/index.js";
+import { fetchCurrentBoard } from "../../model/CurrentBoard.js";
+import { fetchBoard, initRanker } from "../../ranker/index.js";
 import { register as deferredRegister } from "../../update-interaction/commands.js";
-import { Experiences, KNOWN_LEADERBOARDS, logger } from "./common.js";
+import { command, CONTEXT, logger } from "./common.js";
 
 export async function createLeaderboardMessage(
-  leaderboardName: Experiences
+  boardName: string,
+  leaderboardName: string
 ): Promise<APIEmbed> {
-  logger.info(`Creating leaderboard message for ${leaderboardName}`);
-  const leaderboard = await createRankerInstance(leaderboardName);
+  logger.info(`Creating leaderboard message for ${boardName}`);
+  const leaderboard = await initRanker(boardName);
   const lb = await leaderboard.leaderboard();
   logger.info(`Found ${lb.length} leaderboard items`);
   const items = lb.filter((item) => item.Player_ID);
@@ -25,7 +27,7 @@ export async function createLeaderboardMessage(
 
   logger.info(`Found ${players.length} players`);
   return {
-    title: "Example leaderboard",
+    title: `${leaderboardName} leaderboard`,
     description: `Leader: ${players[0].name}`,
     image: { url: `https://crafatar.com/renders/body/${playerIds[0]}` },
     footer: { text: "Thank you to crafatar.com for providing avatars." },
@@ -38,24 +40,43 @@ export async function createLeaderboardMessage(
 
 deferredRegister({
   handler: async (interaction) => {
-    if (interaction.data.name !== "mclb") {
+    if (interaction.data.name !== command) {
       return false;
     }
     logger.info("Received leaderboard command");
-    const leaderboardOption = interaction.data.options.find(
+    const leaderboardOption = interaction.data.options?.find(
       ({ name }) => name === "name"
     );
-    const leaderboardName: Experiences =
-      leaderboardOption?.value ?? process.env.CURRENT_LEADERBOARD;
-    if (!KNOWN_LEADERBOARDS.includes(leaderboardName)) {
-      logger.info("Unknown leaderboard");
+    if (!leaderboardOption || !leaderboardOption.value) {
+      logger.info("No leaderboard option");
+      const currentBoard = await fetchCurrentBoard(CONTEXT);
+      if (!currentBoard) {
+        return {
+          content: "No leaderboard set",
+        };
+      }
+      const { boardName } = currentBoard;
+      const board = await fetchBoard(boardName);
+      if (!board) {
+        return {
+          content: `No leaderboard found for ${boardName}`,
+        };
+      }
+      const { Display_Name: displayName } = board;
       return {
-        content: "unknown leaderboard",
+        embeds: [await createLeaderboardMessage(boardName, displayName)],
       };
     }
-
+    const boardName = leaderboardOption.value;
+    const board = await fetchBoard(boardName);
+    if (!board) {
+      return {
+        content: `No leaderboard found for ${boardName}`,
+      };
+    }
+    const { Display_Name: displayName } = board;
     return {
-      embeds: [await createLeaderboardMessage(leaderboardName)],
+      embeds: [await createLeaderboardMessage(boardName, displayName)],
     };
   },
 });

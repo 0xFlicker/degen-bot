@@ -8,6 +8,8 @@ import { sendInteraction } from "../service/discord";
 
 import "../commands/ping/deferred.js";
 import "../commands/leaderboard/deferred.js";
+import "../commands/leaderboard-current/deferred.js";
+import "../commands/leaderboard-add/deferred.js";
 
 const logger = createLogger();
 
