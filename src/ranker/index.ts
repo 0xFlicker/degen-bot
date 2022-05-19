@@ -1,15 +1,6 @@
 import Ranker, * as ranker from "@0xflicker/ranker";
 import { getDb } from "../storage/db/dynamo";
 
-// const rankerOptions = {
-//   [Experiences.POTATO]: {
-//     rootKey: Experiences.POTATO,
-//     branchingFactor: 100,
-//     leaderboardSize: 100,
-//     scoreRange: [0, 100000],
-//   },
-// };
-
 export async function initRanker(name: string) {
   return await Ranker({
     db: getDb(),

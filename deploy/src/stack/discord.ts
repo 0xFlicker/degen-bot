@@ -188,6 +188,26 @@ export class DiscordStack extends cdk.Stack {
     rankNodesTable.grantReadData(leaderboardHandler);
     rankLeaderboardsTable.grantReadData(leaderboardHandler);
 
+    const leaderboardFetchHandler = new lambda.Function(
+      this,
+      "leaderboardFetchHandler",
+      {
+        runtime: lambda.Runtime.NODEJS_14_X,
+        code: lambda.Code.fromAsset(
+          path.join(__dirname, "../../../.layers/leaderboard-fetch")
+        ),
+        handler: "index.handler",
+        timeout: cdk.Duration.seconds(10),
+        memorySize: 256,
+        environment: {
+          MINIMUM_LOG_LEVEL: "INFO",
+          TABLE_NAME_RANKER_BOARDS: rankBoardTable.tableName,
+        },
+      }
+    );
+
+    rankBoardTable.grantReadData(leaderboardFetchHandler);
+
     const deferredMessageHandler = new lambda.Function(
       this,
       "deferredMessageHandler",
@@ -330,6 +350,13 @@ export class DiscordStack extends cdk.Stack {
     const discordResource = discordApi.root.addResource("discord");
     discordResource.addMethod("POST", discordIntegration);
     const experienceResource = leaderboardApi.root.addResource("{experience}");
+    experienceResource.addMethod(
+      "GET",
+      new apigateway.LambdaIntegration(leaderboardFetchHandler),
+      {
+        apiKeyRequired: true,
+      }
+    );
     const leaderboardResource = experienceResource.addResource("leaderboard");
     leaderboardResource.addMethod(
       "GET",

@@ -3,11 +3,10 @@ import { v4 as createUuid } from "uuid";
 import { handler } from "./ingest";
 import { SQSEvent, SNSEventRecord, Context } from "aws-lambda";
 import { initRanker } from "../ranker";
-import { Experiences } from "../commands/leaderboard/common";
 
 function scoringEvent(
   records: {
-    boardName: Experiences;
+    boardName: string;
     scores?: ScoreInput[];
     scoreDeltas?: ScoreInput[];
   }[]

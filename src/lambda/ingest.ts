@@ -1,10 +1,8 @@
 import { ScoreInput, config } from "@0xflicker/ranker";
-import { TableScores } from "@0xflicker/ranker/lib/db/dynamodb";
 import { SQSHandler } from "aws-lambda";
 import { initRanker } from "../ranker";
 import { createLogger } from "../utils/logging";
 
-const KNOWN_LEADERBOARDS = [Experiences.POTATO];
 const logger = createLogger();
 
 export const handler: SQSHandler = async (event) => {
@@ -20,10 +18,6 @@ export const handler: SQSHandler = async (event) => {
       scores?: ScoreInput[];
       scoreDeltas?: ScoreInput[];
     } = JSON.parse(message);
-    if (!KNOWN_LEADERBOARDS.includes(boardName)) {
-      logger.info("Unknown leaderboard");
-      continue;
-    }
     try {
       const l = await initRanker(boardName);
       if (scores) {
