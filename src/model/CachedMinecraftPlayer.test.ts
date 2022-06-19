@@ -55,7 +55,7 @@ describe("CachedMinecraftPlayer", () => {
 
   it("bedrock - fetches from service if not in database", async () => {
     const uuid = "00000000-0000-0000-0011-12345678";
-    const numericUuid = Number(`0x${uuid.replace("-", "")}`);
+    const numericUuid = Number(`0x${uuid.replace(/-/g, "")}`);
     const player = {
       username: "test-name",
       id: uuid,

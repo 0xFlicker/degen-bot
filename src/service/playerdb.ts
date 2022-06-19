@@ -58,16 +58,14 @@ export async function fetchPlayerName(uuid: string) {
     throw new Error(response.data.message);
   }
   if (playerType === MinecraftPlayerType.XBOX) {
-    const response = await axios.get<IPlayerDbXboxResponse>(
-      `https://playerdb.co/api/player/xbox/${Number(
-        `0x${uuid.replace("-", "")}`
-      )}`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+    const url = `https://playerdb.co/api/player/xbox/${Number(
+      `0x${uuid.replace(/-/g, "")}`
+    )}`;
+    const response = await axios.get<IPlayerDbXboxResponse>(url, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
     if (response.data.code === "player.found") {
       return {
         type: playerType,

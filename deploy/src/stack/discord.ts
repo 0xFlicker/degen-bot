@@ -408,5 +408,9 @@ export class DiscordStack extends cdk.Stack {
       value: scoreTopic.topicArn,
       description: "The arn of the SNS score topic",
     });
+    new cdk.CfnOutput(this, "defaultApiKeyId", {
+      value: defaultApiKey.keyId,
+      description: "The default API key ID",
+    });
   }
 }
