@@ -23,7 +23,7 @@ flowchart LR
   Lambda --> SNS[SNS deferred-message topic]
   SNS --> Deferred[deferred response Lambda]
   Deferred --> DiscordAPI[Discord callback API]
-  Lambda --> Ranker[@0xflicker/ranker]
+  Lambda --> Ranker["@0xflicker/ranker"]
   Ranker --> DDB
   Admin[CLI] --> DiscordAPI
 ```
