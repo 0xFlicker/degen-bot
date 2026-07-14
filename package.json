@@ -1,8 +1,21 @@
 {
   "name": "degen-bot",
   "version": "1.0.0",
+  "description": "Serverless Discord bot using interaction webhooks and AWS Lambda",
   "main": "index.js",
   "author": "0xFlick <cmdrnft@protonmail.com>",
+  "repository": "git://github.com/0xFlicker/degen-bot.git",
+  "homepage": "https://github.com/0xFlicker/degen-bot#readme",
+  "bugs": {
+    "url": "https://github.com/0xFlicker/degen-bot/issues"
+  },
+  "keywords": [
+    "discord",
+    "discord-bot",
+    "aws-lambda",
+    "serverless",
+    "typescript"
+  ],
   "license": "MIT",
   "scripts": {
     "build": "yarn discord:build && yarn leaderboard:build && yarn players:build && yarn ingest:build && yarn deferred:build && yarn leaderboard-fetch:build",
